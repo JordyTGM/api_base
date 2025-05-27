@@ -1,0 +1,3 @@
+
+2024-11-22 18:39:14.913 -05:00 [INF] No se pudo encontrar el ID agente asignado: http://pruebas.servicios.saludsa.com.ec/ServicioComunicaciones/api/Zendesk/GetBuscarUsuariosPorParametros?query=mmartinez@saludsa.com.ec
+2024-11-22 19:10:34.193 -05:00 [INF] No se pudo encontrar el ID agente asignado: http://pruebas.servicios.saludsa.com.ec/ServicioComunicaciones/api/Zendesk/GetBuscarUsuariosPorParametros?query=mmartinez@saludsa.com.ec

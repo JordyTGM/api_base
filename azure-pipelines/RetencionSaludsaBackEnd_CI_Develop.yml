@@ -1,0 +1,57 @@
+trigger:
+  branches:
+    include:
+      - develop
+
+jobs:
+- job: integracionContinuaDevelop
+  displayName: 'Integración continua Develop'
+
+  variables:
+    buildConfiguration: 'Release'
+    projectConfiguration: '**/*.sln'
+    NUGET_USER: '$(TOKEN_USER_NUGET)'
+    NUGET_PAT: '$(TOKEN_PASSWORD_NUGET)'
+    tag: $(Build.BuildId)_$(Build.SourceBranchName)_$(date:yyyyMMddHHmm)
+    repository: 'webapiretencionclientes'
+
+  pool:
+    name: 'kubernetes_pruebas_Linux'
+    
+  steps:
+  - task: Bash@3
+    displayName: 'Generate Docker Tag'
+    inputs:
+      targetType: 'inline'
+      script: |
+        TAG=$(Build.BuildId)_$(Build.SourceBranchName)_$(date +"%Y%m%d%H%M")
+        echo "##vso[task.setvariable variable=DOCKER_TAG]$TAG"
+
+  - task: Docker@2
+    displayName: 'Build Docker image'
+    inputs:
+      command: 'build'
+      repository: '$(repository)'
+      containerRegistry: 'Docker_Registry_Pruebas'
+      Dockerfile: '**/Dockerfile'
+      buildContext: '$(System.DefaultWorkingDirectory)'
+      tags: |
+        $(DOCKER_TAG)
+      arguments: '--build-arg NUGET_USER=$(NUGET_USER) --build-arg NUGET_PAT=$(NUGET_PAT)'
+  - task: Docker@2
+    displayName: 'Push Docker image'
+    inputs:
+      command: 'push'
+      containerRegistry: 'Docker_Registry_Pruebas'
+      repository: '$(repository)'
+      tags: |
+        $(DOCKER_TAG)
+  - script: |
+      echo $(DOCKER_TAG) > $(Build.ArtifactStagingDirectory)/docker-tag.txt
+    displayName: 'Create Docker Tag File'
+  
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Docker Tag'
+    inputs:
+      path: '$(Build.ArtifactStagingDirectory)/docker-tag.txt'
+      artifactName: 'docker-tag'

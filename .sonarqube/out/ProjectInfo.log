@@ -1,0 +1,27 @@
+Product projects
+---------------------------------------
+C:\AZURE_SALUDSA\api-sac-retencion-clientes\Domain\Domain.csproj
+C:\AZURE_SALUDSA\api-sac-retencion-clientes\Persistence\Persistence.csproj
+C:\AZURE_SALUDSA\api-sac-retencion-clientes\Application\Application.csproj
+C:\AZURE_SALUDSA\api-sac-retencion-clientes\API\WebApiRetencionClientes.csproj
+
+
+Test projects
+---------------------------------------
+
+
+Invalid projects
+---------------------------------------
+{none}
+
+
+Skipped projects
+---------------------------------------
+{none}
+
+
+Excluded projects
+---------------------------------------
+{none}
+
+

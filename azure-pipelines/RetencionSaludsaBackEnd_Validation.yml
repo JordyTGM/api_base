@@ -1,0 +1,98 @@
+trigger: none
+
+jobs:
+- job: integracion_continua_validacion
+  displayName: 'Integración continua validación'
+
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  variables:
+    buildConfiguration: 'Release'
+    projectConfiguration: '**/*.sln'
+    SONARQUBE_HOSTNAME: 'https://sonarqube.saludsa.com.ec:9001'
+    SONARQUBE_SECRET_TOKEN: '$(SONARQUBE_TOKEN)'
+    SONARQUBE_PROJECT_KEY: '$(SONARQUBE_PRJ_KEY)'
+    SONARQUBE_PROJECT_NAME: '$(SONARQUBE_PRJ_NAME)'
+
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '8.x'
+  - task: DotNetCoreCLI@2
+    displayName: 'Restaurar dependencias Proyecto'
+    inputs:
+      command: 'restore'
+      projects: '$(projectConfiguration)'
+      feedsToUse: 'select'
+
+  - task: SonarQubePrepare@6
+    displayName: 'Preparar análisis de SonarQube'
+    inputs:
+      SonarQube: "Sonarqube_SAC"
+      scannerMode: 'MSBuild'
+      projectKey: '$(SONARQUBE_PROJECT_KEY)'
+      projectName: '$(SONARQUBE_PROJECT_NAME)'
+  - task: DotNetCoreCLI@2
+    displayName: 'Compilar Proyecto'
+    inputs:
+      command: 'build'
+      projects: '$(projectConfiguration)'
+      arguments: '--configuration $(BuildConfiguration)'
+      verbosityRestore: Detailed
+      verbosityPack: Detailed      
+  - task: SonarQubeAnalyze@6
+    displayName: 'Análizar código en SonarQube'
+    inputs:
+      jdkversion: 'JAVA_HOME_17_X64'
+
+  - task: SonarQubePublish@6
+    displayName: 'Publicar análisis en SonarQube'
+    inputs:
+      pollingTimeoutSec: '300'
+
+  - task: PowerShell@2
+    displayName: 'Reporte de análisis en SonarQube'
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Definir la URL del servidor de SonarQube y el token de autenticación
+        $sonarqubeUrl = "$(SONARQUBE_HOSTNAME)"
+        $token = "$(SONARQUBE_SECRET_TOKEN)"
+        $sonarqubekey = "$(SONARQUBE_PROJECT_KEY)"
+
+        # Construir la URL para la búsqueda de issues en la pull request actual
+        $pullRequestId = "$(System.PullRequest.PullRequestId)"
+        $apiUrl = "$sonarqubeUrl/api/issues/search"
+        $query = "?componentKeys=$sonarqubekey&pullRequest=$pullRequestId&statuses=OPEN,REOPENED,CONFIRMED"
+
+        # Realizar la solicitud HTTP para obtener los issues
+        $headers = @{ Authorization = "Basic " + [Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("${token}:")) }
+        $response = Invoke-RestMethod -Uri "$apiUrl$query" -Headers $headers
+
+        # Verificar si se encontraron issues no resueltos
+        if ($response.issues.Count -gt 0) {
+          # Obtener la cantidad de issues no resueltos
+          $numIssues = $response.issues.Count
+
+          # Construir la URL para el dashboard de SonarQube
+          $sonarQubeUrl = "$sonarqubeUrl/dashboard?id=$sonarqubekey&pullRequest=$pullRequestId"
+          
+          # Informar sobre la existencia de issues no resueltos
+          Write-Output "##vso[task.logissue type=error;]La calidad del código no cumple con los estándares definidos en SonarQube. Se encontraron $numIssues issues no resueltos. Ver detalles en: $sonarQubeUrl"
+
+          # Iterar sobre cada issue no resuelto y mostrar su mensaje
+          foreach ($issue in $response.issues) {
+            $issueMessage = "SonarQube Issue: $($issue.message) - Severity: $($issue.severity) - Type: $($issue.type)"
+            Write-Output "##vso[task.logissue type=error;]$issueMessage"
+          }
+
+          # Lanzar un error para indicar que se encontraron problemas de calidad
+          throw "Se encontraron $numIssues problemas de calidad en el código según SonarQube. Ver detalles en: $sonarQubeUrl"
+        } else {
+          # Si no se encontraron issues no resueltos, mostrar un mensaje indicando eso
+          Write-Output "No se encontraron issues no resueltos en la pull request."
+        }
+      pwsh: true
