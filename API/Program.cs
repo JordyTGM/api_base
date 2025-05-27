@@ -10,7 +10,7 @@ using System.Text;
 using Application.Data;
 using Microsoft.Extensions.FileProviders;
 using Domain.Utilitario;
-using WebApiRetencionClientes.Configuration;
+using WebApiBase.Configuration;
 using sac_core.autorizacion;
 using sac_core.excepcion;
 using sac_core.logPeticion;
@@ -19,7 +19,7 @@ using Serilog.Events;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 
-namespace WebApiRetencionClientes
+namespace WebApiBase
 {
     internal static class Program
     {

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiRetencionClientes", "API\WebApiRetencionClientes.csproj", "{A349BBCB-E89F-4C65-A521-C1F582386583}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiBase", "API\WebApiBase.csproj", "{A349BBCB-E89F-4C65-A521-C1F582386583}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{AFD6935B-2354-4FF0-A153-81F3A3FA0928}"
 EndProject
@@ -36,5 +36,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9861E023-013A-4091-855D-B2B41B24219D}
 	EndGlobalSection
 EndGlobal

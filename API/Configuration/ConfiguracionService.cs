@@ -2,7 +2,7 @@
 using Domain.Utilitario;
 
 
-namespace WebApiRetencionClientes.Configuration
+namespace WebApiBase.Configuration
 {
     public interface IConfigurationService
     {

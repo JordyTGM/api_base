@@ -1,4 +1,4 @@
-﻿namespace WebApiRetencionClientes.Securiy
+﻿namespace WebApiBase.Securiy
 {
     public static class JwtSettings
     {

@@ -1,4 +1,4 @@
-﻿namespace WebApiRetencionClientes.Configuration
+﻿namespace WebApiBase.Configuration
 {
     public class BaseSetting
     {

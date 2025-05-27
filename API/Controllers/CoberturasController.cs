@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using sac_core.autorizacion;
 
-namespace WebApiRetencionClientes.Controllers
+namespace WebApiBase.Controllers
 {
     //[AuthorizeSac]
     [Route("api/Coberturas")]
